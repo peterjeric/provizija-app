@@ -474,13 +474,13 @@
         } else {
             prikazneTransakcije.forEach(t => {
                 let datumFormat = new Date(t.datum).toLocaleDateString('sl-SI');
-                let opomba = t.opomba ? t.opomba : '/';
+                let opomba = (t.opomba && t.opomba.trim() !== '') ? t.opomba : '/';
                 
                 if (t.tip === 'provizija') {
                     tabela.innerHTML += `
                         <tr>
                             <td>${datumFormat}</td>
-                            <td class="opomba-text">Posel: ${opomba}</td>
+                            <td class="opomba-text">${opomba}</td>
                             <td class="text-right">${t.kg} kg<br><small style="color:var(--text-muted)">(${t.cenaNaKg} €/kg)</small></td>
                             <td class="text-right" style="font-weight:bold; color: var(--primary-color);">+ ${t.skupaj.toFixed(2)} €</td>
                         </tr>`;
@@ -508,7 +508,7 @@
     }
 
     window.stornirajIzplacilo = async function(transakcijaId) {
-        let vnos = prompt("⚠️ OPOZORILO: Stororno bo izbrisalo to izplačilo, vse vezane provizije pa se bodo vrnile nazaj v odprti dolg!\n\nZa potrditev storniranja vpišite besedo STORNIRAJ:");
+        let vnos = prompt("⚠️ OPOZORILO: Storno bo izbrisalo to izplačilo, vse vezane provizije pa se bodo vrnile nazaj v odprti dolg!\n\nZa potrditev storniranja vpišite besedo STORNIRAJ:");
         
         if (vnos === null) return;
         if (vnos.trim() !== "STORNIRAJ") {
@@ -552,7 +552,7 @@
             let prov = transakcije.find(t => t.id === id);
             if (prov) {
                 let datumF = new Date(prov.datum).toLocaleDateString('sl-SI');
-                let opF = prov.opomba ? prov.opomba : '/';
+                let opF = (prov.opomba && prov.opomba.trim() !== '') ? prov.opomba : '/';
                 html += `<tr><td>${datumF}</td><td>${opF}</td><td class="text-right">${prov.kg} kg</td><td class="text-right">+ ${prov.skupaj.toFixed(2)} €</td></tr>`;
             }
         });
