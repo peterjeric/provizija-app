@@ -74,7 +74,7 @@
         .btn-success { background-color: var(--success-color); color: white; }
         .btn-success:hover { background-color: #059669; }
         .btn-secondary { background-color: var(--text-muted); color: white; }
-        .btn-danger-outline { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); }
+        .btn-danger-outline { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); width: 100%; padding: 12px; margin-top: 15px; }
         .btn-danger-outline:hover { background: #fef2f2; }
         .btn-storno { background-color: var(--danger-color); color: white; font-size: 0.75rem; padding: 6px 10px; border-radius: 4px; float: right; }
         .btn-storno:hover { background-color: #dc2626; }
@@ -176,12 +176,9 @@
     <div id="pogled-detajli" class="hidden">
         <div class="top-header" style="flex-direction: column; align-items: flex-start; gap: 12px;">
             <button class="btn btn-secondary" onclick="odpriZacetniZaslon()">⬅ Nazaj na nadzorno ploščo</button>
-            <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <h1 id="detajli-ime" style="margin: 0; font-size: 1.4rem;">Posrednik</h1>
-                    <div id="detajli-stanje" style="font-weight: bold; font-size: 1.1rem; color: var(--danger-color); margin-top: 4px;">Dolžni smo: 0.00 €</div>
-                </div>
-                <button class="btn btn-danger-outline" onclick="izbrisiTrenutnegaPosrednika()">🗑️ Izbriši posrednika</button>
+            <div style="width: 100%;">
+                <h1 id="detajli-ime" style="margin: 0; font-size: 1.4rem;">Posrednik</h1>
+                <div id="detajli-stanje" style="font-weight: bold; font-size: 1.1rem; color: var(--danger-color); margin-top: 4px;">Dolžni smo: 0.00 €</div>
             </div>
         </div>
 
@@ -245,6 +242,9 @@
                     <tbody id="detajli-zgodovina"></tbody>
                 </table>
             </div>
+
+            <!-- Gumb za izbris posrednika premaknjen na dno -->
+            <button class="btn btn-danger-outline" onclick="izbrisiTrenutnegaPosrednika()">🗑️ Izbriši tega posrednika</button>
         </div>
     </div>
 </div>
@@ -252,7 +252,7 @@
 <!-- FIREBASE IN SKRIPTA -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCRD-yldX7GuBK1admGMwPCpyN7Knr6KRc",
@@ -330,10 +330,25 @@
         vnos.value = "";
     };
 
+    // VARNOSTNI BRISANJE POSREDNIKA Z VPISOM BESEDE "IZBRIŠI"
     window.izbrisiTrenutnegaPosrednika = async function() {
-        if (!confirm(`Ali res želite izbrisati posrednika ${izbranPosrednik}?`)) return;
+        let vnos = prompt(`⚠️ OPOZORILO: Brisanje posrednika "${izbranPosrednik}" bo odstranilo njegov konto in vse pripadajoče zapise!\n\nZa potrditev vpišite besedo IZBRIŠI:`);
+        
+        if (vnos === null) return;
+        if (vnos.trim() !== "IZBRIŠI") {
+            return alert("Napaka: Vpisana beseda ni pravilna. Brisanje je preklicano.");
+        }
+
         let p = posredniki.find(x => x.ime === izbranPosrednik);
-        if (p) await deleteDoc(doc(db, "posredniki", p.id));
+        if (p) {
+            await deleteDoc(doc(db, "posredniki", p.id));
+            
+            // Lahko opcijski izbrisemo tudi njegove transakcije, da ne ostanejo v bazi "sirote"
+            let njegoveT = transakcije.filter(t => t.posrednik === izbranPosrednik);
+            for (let t of njegoveT) {
+                await deleteDoc(doc(db, "transakcije", t.id));
+            }
+        }
         odpriZacetniZaslon();
     };
 
@@ -477,12 +492,13 @@
                 let opomba = (t.opomba && t.opomba.trim() !== '') ? t.opomba : '/';
                 
                 if (t.tip === 'provizija') {
+                    // Provizije: brez plusa, zelena barva
                     tabela.innerHTML += `
                         <tr>
                             <td>${datumFormat}</td>
                             <td class="opomba-text">${opomba}</td>
                             <td class="text-right">${t.kg} kg<br><small style="color:var(--text-muted)">(${t.cenaNaKg} €/kg)</small></td>
-                            <td class="text-right" style="font-weight:bold; color: var(--primary-color);">+ ${t.skupaj.toFixed(2)} €</td>
+                            <td class="text-right" style="font-weight:bold; color: var(--success-color);">${t.skupaj.toFixed(2)} €</td>
                         </tr>`;
                 } else {
                     let stProvizij = t.provizijaIds ? t.provizijaIds.length : 0;
@@ -553,7 +569,7 @@
             if (prov) {
                 let datumF = new Date(prov.datum).toLocaleDateString('sl-SI');
                 let opF = (prov.opomba && prov.opomba.trim() !== '') ? prov.opomba : '/';
-                html += `<tr><td>${datumF}</td><td>${opF}</td><td class="text-right">${prov.kg} kg</td><td class="text-right">+ ${prov.skupaj.toFixed(2)} €</td></tr>`;
+                html += `<tr><td>${datumF}</td><td>${opF}</td><td class="text-right">${prov.kg} kg</td><td class="text-right" style="color:var(--success-color); font-weight:600;">${prov.skupaj.toFixed(2)} €</td></tr>`;
             }
         });
         html += `</tbody></table>`;
