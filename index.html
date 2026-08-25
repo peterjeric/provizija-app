@@ -34,11 +34,11 @@
 
         .hidden { display: none !important; }
 
-        /* ZGORNJI ZGLAJEN HEADER */
+        /* ZGORNJI PAS (HEADER) V STILU MESO-COOP */
         .top-header {
             background: var(--primary-color);
             color: white;
-            padding: 20px;
+            padding: 22px 25px;
             border-radius: 12px;
             margin-bottom: 20px;
             display: flex;
@@ -46,13 +46,13 @@
             align-items: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        .top-header h1 { margin: 0; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; }
-        .top-header span { font-size: 0.75rem; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 20px; }
+        .top-header h1 { margin: 0; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        .top-header .badge-system { font-size: 0.75rem; background: rgba(255,255,255,0.12); padding: 5px 12px; border-radius: 20px; color: #34d399; font-weight: 600; }
 
-        /* KARTICE STATISTIKE (Dashboard) */
+        /* STATISTIKA (GRID KARTICE) */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -63,7 +63,7 @@
             padding: 20px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
-        .stat-card-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+        .stat-card-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .stat-card-value { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); margin: 8px 0 0 0; }
 
         /* VNOSNI OKVIR ZA POSREDNIKA */
@@ -79,15 +79,17 @@
         }
         .add-broker-box input {
             flex: 1;
-            padding: 10px 14px;
+            padding: 11px 15px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 0.95rem;
+            outline: none;
         }
+        .add-broker-box input:focus { border-color: var(--accent-color); }
 
         /* GUMBI */
         .btn {
-            padding: 10px 16px;
+            padding: 10px 18px;
             border: none;
             border-radius: 6px;
             font-weight: 600;
@@ -116,15 +118,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
+            padding: 16px 20px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             background: #fff;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .broker-row-card:hover { border-color: var(--accent-color); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08); }
+        .broker-row-card:hover { border-color: var(--accent-color); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08); transform: translateY(-1px); }
 
         /* OBRAZCI NA KONTU */
         .forms-grid {
@@ -141,14 +143,16 @@
         label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85rem; }
         input[type="text"], input[type="date"], input[type="number"], input[type="password"] {
             width: 100%;
-            padding: 10px;
+            padding: 10px 12px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 0.95rem;
             background: #fff;
+            outline: none;
         }
+        input:focus { border-color: var(--accent-color); }
 
-        /* SEZNAM NEIZPLAČANIH PROVIZIJ V OBRAZCU */
+        /* SEZNAM NEIZPLAČANIh PROVIZIJ V OBRAZCU */
         .unpaid-list {
             max-height: 140px;
             overflow-y: auto;
@@ -171,7 +175,7 @@
         .table-responsive { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th, td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
-        th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+        th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .text-right { text-align: right; }
         .opomba-text { font-style: italic; color: var(--text-muted); font-size: 0.85rem; }
 
@@ -188,7 +192,7 @@
             display: flex; align-items: center; justify-content: center; padding: 20px;
         }
         .login-box {
-            background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            background: white; padding: 35px; border-radius: 12px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         #loading { text-align: center; color: var(--accent-color); font-weight: bold; margin: 40px; font-size: 1.1rem; }
@@ -211,15 +215,16 @@
 
     <!-- POGLED 1: NADZORNA PLOŠČA -->
     <div id="pogled-seznam" class="hidden">
+        <!-- Zgornji pas v stilu Meso-Coop -->
         <div class="top-header">
             <div>
-                <h1>🥩 Meso-Coop <span>Poslovni sistem</span></h1>
-                <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">Nadzorna plošča za upravljanje provizij</p>
+                <h1>🥩 Meso-Coop</h1>
+                <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">Poslovni sistem · Modul za provizije</p>
             </div>
-            <div style="font-size: 0.8rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 6px 12px; border-radius: 20px; font-weight: bold;">● Sistem aktiven</div>
+            <div class="badge-system">● Sistem aktiven</div>
         </div>
 
-        <!-- STATISTIKA -->
+        <!-- Statistika (Kartice zgoraj) -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-card-title">Število posrednikov</div>
@@ -231,13 +236,13 @@
             </div>
         </div>
 
-        <!-- DODAJANJE -->
+        <!-- Dodajanje posrednika -->
         <div class="add-broker-box">
             <input type="text" id="novPosrednikIme" placeholder="Vpišite ime novega posrednika...">
             <button class="btn btn-primary" onclick="dodajPosrednika()">+ Dodaj posrednika</button>
         </div>
 
-        <!-- SEZNAM -->
+        <!-- Seznam posrednikov -->
         <div class="content-card">
             <h3 style="margin-top:0; color: var(--primary-color); font-size: 1.1rem; margin-bottom: 15px;">Seznam posrednikov</h3>
             <div id="kartice-posrednikov"></div>
@@ -246,18 +251,18 @@
 
     <!-- POGLED 2: KONTO POSAMEZNEGA POSREDNIKA -->
     <div id="pogled-detajli" class="hidden">
-        <div class="top-header" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+        <div class="top-header" style="flex-direction: column; align-items: flex-start; gap: 12px;">
             <button class="btn btn-secondary" onclick="odpriZacetniZaslon()">⬅ Nazaj na nadzorno ploščo</button>
             <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px;">
                 <div>
-                    <h1 id="detajli-ime" style="margin: 0; font-size: 1.5rem;">Posrednik</h1>
+                    <h1 id="detajli-ime" style="margin: 0; font-size: 1.4rem;">Posrednik</h1>
                     <div id="detajli-stanje" style="font-weight: bold; font-size: 1.1rem; color: var(--danger-color); margin-top: 4px;">Dolžni smo: 0.00 €</div>
                 </div>
                 <button class="btn btn-danger-outline" onclick="izbrisiTrenutnegaPosrednika()">🗑️ Izbriši posrednika</button>
             </div>
         </div>
 
-        <!-- OBRAZCI -->
+        <!-- Obrazci -->
         <div class="forms-grid">
             <!-- Provizija -->
             <div class="content-card" style="margin-bottom: 0; border-top: 4px solid var(--accent-color);">
@@ -303,7 +308,7 @@
             </div>
         </div>
 
-        <!-- ZGODOVINA -->
+        <!-- Zgornja zgodovina -->
         <div class="content-card">
             <h3 style="margin-top:0; font-size: 1.1rem; margin-bottom: 15px;">Zgodovina in odprte postavke</h3>
             <div class="table-responsive">
