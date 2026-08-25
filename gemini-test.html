@@ -3,214 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Provizije App - Avtomatsko čiščenje zaprtih postavk</title>
+    <title>Meso-Coop | Provizije</title>
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --accent-color: #3498db;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --bg-color: #f5f6fa;
+            --sidebar-bg: #10192b;
+            --sidebar-hover: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-active: #ffffff;
+            --primary-color: #1e293b;
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
         }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color); margin: 0; padding: 15px; color: #333;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
         }
-        .container { max-width: 850px; margin: 0 auto; }
-        h1, h2, h3 { color: var(--primary-color); }
+
+        /* STRANSKI MENI (SIDEBAR) */
+        aside {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; bottom: 0; left: 0;
+            z-index: 100;
+            box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+        }
+
+        .brand-box {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .brand-title { font-size: 1.1rem; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px; }
+        .brand-sub { font-size: 0.75rem; color: var(--sidebar-text); margin-top: 4px; }
+
+        .menu-section { padding: 15px 15px 5px 15px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #475569; font-weight: bold; }
+        
+        .nav-links { list-style: none; padding: 0; margin: 0; }
+        .nav-item {
+            padding: 10px 15px;
+            margin: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--sidebar-text);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        .nav-item:hover { background-color: var(--sidebar-hover); color: var(--sidebar-text-active); }
+        .nav-item.active { background-color: var(--accent-color); color: white; font-weight: 500; }
+
+        /* GLAVNA VSEBINA */
+        main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 30px;
+            max-width: calc(100vw - 260px);
+        }
+
+        @media (max-width: 900px) {
+            aside { width: 70px; }
+            .brand-sub, .brand-title span, .menu-section, .nav-item span { display: none; }
+            main { margin-left: 70px; max-width: calc(100vw - 70px); padding: 15px; }
+            .nav-item { justify-content: center; }
+        }
+
         .hidden { display: none !important; }
 
-        /* ZASLON ZA PRIJAVO */
-        #pogled-prijava {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 80vh; text-align: center;
+        /* HEADER NADZORNE PLOŠČE */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
-        .login-box {
-            background: white; padding: 30px; border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 320px;
-        }
-        .login-box input {
-            width: 100%; padding: 12px; font-size: 1.2rem; text-align: center;
-            letter-spacing: 5px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;
-        }
-        .login-box button {
-            width: 100%; padding: 12px; background-color: var(--accent-color); color: white;
-            border: none; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer;
-        }
-
-        /* DODAJANJE POSREDNIKA */
-        .add-broker-box {
-            background: white; padding: 12px 15px; border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px;
-            display: flex; gap: 8px;
-        }
-        .add-broker-box input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; }
-        .add-broker-box button {
-            background-color: var(--primary-color); color: white; border: none;
-            padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap;
-        }
-
-        /* KARTICE */
-        .dashboard-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .card {
-            background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-            border-left: 4px solid var(--accent-color); cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center;
-            transition: background 0.1s;
-        }
-        .card:active { background-color: #f0f0f0; }
-        .card.negative { border-left-color: var(--danger-color); }
-        .card h3 { margin: 0; font-size: 1.1rem; color: var(--primary-color); }
-        .card .amount { font-size: 1.2rem; font-weight: bold; color: var(--primary-color); }
+        .page-title { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); margin: 0 0 5px 0; }
+        .page-subtitle { color: var(--text-muted); font-size: 0.9rem; margin: 0; }
         
-        /* DETAJLI POSREDNIKA */
-        .header-nav {
-            display: flex; justify-content: space-between; align-items: center;
-            background: white; padding: 12px 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); margin-bottom: 15px;
+        .badge-status {
+            background-color: #d1fae5; color: #065f46; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
         }
-        .btn-back { background-color: var(--secondary-color); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
-        .btn-delete { background-color: white; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
+        .badge-status::before { content: ""; width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; }
 
-        /* OBRAZCI */
-        .forms-container { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
-        @media(min-width: 700px) { .forms-container { grid-template-columns: 1fr 1fr; } }
-        .form-box { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
-        .form-group { margin-bottom: 10px; }
-        label { display: block; margin-bottom: 3px; font-weight: bold; font-size: 0.85rem;}
-        input { width: 100%; padding: 9px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; }
-        button[type="submit"] { background-color: var(--accent-color); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 0.95rem; }
-        .btn-payout { background-color: var(--success-color) !important; }
+        /* KARTICE - DASHBOARD GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .stat-card-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+        .stat-card-value { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); margin: 10px 0 5px 0; }
+        .stat-card-sub { font-size: 0.8rem; color: var(--text-muted); }
 
-        /* SEZNAM NEIZPLAČANIh PROVIZIJ V OBRAZCU */
-        .unpaid-list {
-            max-height: 140px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 5px; margin-bottom: 5px; background: #fafafa;
+        /* SEZNAMI IN OKVIRJI */
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            margin-bottom: 25px;
         }
-        .unpaid-item {
-            display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 4px; border-bottom: 1px solid #eee;
+        .card-header-row {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;
         }
-        .unpaid-item:last-child { border-bottom: none; }
-        .select-all-row {
-            display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-bottom: 10px; color: var(--accent-color); font-weight: bold; cursor: pointer;
+        .card-title { font-size: 1.1rem; font-weight: bold; color: var(--primary-color); margin: 0; }
+
+        /* SEZNAM POSREDNIKOV (INTERAKTIVNE VRSTICE) */
+        .broker-row-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .broker-row-card:hover { border-color: var(--accent-color); box-shadow: 0 4px 6px rgba(59, 130, 246, 0.05); transform: translateY(-1px); }
+
+        /* OBRAZCI IN VNOSI */
+        .add-broker-box {
+            display: flex; gap: 10px; margin-bottom: 20px; background: var(--card-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--border-color);
+        }
+        .add-broker-box input { flex: 1; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; }
+        .btn-primary { background-color: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-primary:hover { background-color: #2563eb; }
+        .btn-success { background-color: var(--success-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-success:hover { background-color: #059669; }
+        .btn-danger-outline { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-danger-outline:hover { background: #fef2f2; }
+        .btn-secondary { background-color: #64748b; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+        .forms-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 25px; }
+        @media(min-width: 768px) { .forms-grid { grid-template-columns: 1fr 1fr; } }
+        
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85rem; color: var(--text-main); }
+        input[type="text"], input[type="date"], input[type="number"], input[type="password"] {
+            width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background: #fff;
         }
 
         /* TABELA */
-        .table-responsive { width: 100%; overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-        th { background-color: #f8f9fa; color: var(--primary-color); }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+        th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
         .text-right { text-align: right; }
-        .opomba-text { font-style: italic; color: #555; font-size: 0.85rem; }
-        
-        /* KLIKLJIVE VRSTICE IN PODROBNOSTI IZPLAČILA */
-        .clickable-row { cursor: pointer; transition: background 0.1s; }
-        .clickable-row:hover { background-color: #f1f8ff; }
-        .details-row { background-color: #f9fbfd; display: none; }
-        .details-row td { padding: 12px 20px; border-bottom: 2px dashed #d1e7dd; }
-        .sub-table { width: 100%; font-size: 0.85rem; background: white; border-radius: 6px; border: 1px solid #e2e8f0; margin-top: 5px; }
-        .sub-table th, .sub-table td { padding: 6px 10px; }
+        .opomba-text { font-style: italic; color: var(--text-muted); font-size: 0.85rem; }
 
-        #loading { text-align: center; color: var(--accent-color); font-weight: bold; margin: 20px; }
+        .clickable-row { cursor: pointer; transition: background 0.1s; }
+        .clickable-row:hover { background-color: #f1f5f9; }
+        .details-row { background-color: #f8fafc; display: none; }
+        .details-row td { padding: 15px; border-bottom: 2px dashed #cbd5e1; }
+        .sub-table { width: 100%; font-size: 0.85rem; background: white; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 8px; }
+        .sub-table th, .sub-table td { padding: 8px 10px; }
+
+        .unpaid-list { max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; background: #fafafa; }
+        .unpaid-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
+        .unpaid-item:last-child { border-bottom: none; }
+
+        /* ZASLON ZA PRIJAVO */
+        #pogled-prijava {
+            position: fixed; inset: 0; background: var(--sidebar-bg); z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-box {
+            background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        #loading { text-align: center; color: var(--accent-color); font-weight: bold; margin: 40px; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="loading">Nalagam podatke...</div>
-
-    <!-- PRIJAVA -->
-    <div id="pogled-prijava" class="hidden">
-        <div class="login-box">
-            <h2>🔒 Vnos kode</h2>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">Za dostop do aplikacije vnesi PIN kodo:</p>
-            <input type="password" id="pinInput" placeholder="••••" maxlength="6">
-            <button onclick="preveriPin()">Potrdi</button>
-        </div>
-    </div>
-
-    <!-- ZAČETNI ZASLON -->
-    <div id="pogled-seznam" class="hidden">
-        <h2 style="margin-bottom: 10px;">👥 Posredniki</h2>
-        <div class="add-broker-box">
-            <input type="text" id="novPosrednikIme" placeholder="Ime novega posrednika...">
-            <button onclick="dodajPosrednika()">Dodaj</button>
-        </div>
-        <div class="dashboard-cards" id="kartice-posrednikov"></div>
-    </div>
-
-    <!-- KONTO POSAMEZNEGA POSREDNIKA -->
-    <div id="pogled-detajli" class="hidden">
-        <div class="header-nav">
-            <button class="btn-back" onclick="odpriZacetniZaslon()">⬅ Nazaj</button>
-            <div style="text-align: center;">
-                <h3 id="detajli-ime" style="margin: 0; font-size: 1rem;">Posrednik</h3>
-                <div id="detajli-stanje" style="font-weight: bold; font-size: 0.9rem; color: var(--danger-color);">0.00 €</div>
+    <!-- STRANSKI MENI -->
+    <aside>
+        <div class="brand-box">
+            <div class="brand-title">
+                <span>🥩</span> Meso-Coop
             </div>
-            <button class="btn-delete" onclick="izbrisiTrenutnegaPosrednika()">Izbriši</button>
+            <div class="brand-sub">Poslovni sistem · Delovna V9.5.1</div>
+        </div>
+        
+        <div class="menu-section">Upravljanje</div>
+        <ul class="nav-links">
+            <li class="nav-item active" onclick="odpriZacetniZaslon()">
+                <span>📊</span> <span>Nadzorna plošča</span>
+            </li>
+        </ul>
+
+        <div class="menu-section">Sistemske nastavitve</div>
+        <ul class="nav-links">
+            <li class="nav-item" onclick="alert('Sistem deluje v povezavi s Firebase oblakom.')">
+                <span>⚙️</span> <span>Baza podatkov</span>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- GLAVNO OKNO -->
+    <main>
+        <div id="loading">Povezujem s sistemom...</div>
+
+        <!-- PRIJAVA S PIN KODO -->
+        <div id="pogled-prijava" class="hidden">
+            <div class="login-box">
+                <h2 style="color: var(--primary-color); margin-top:0;">🔒 Varnostni PIN</h2>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Vnesite kodo za dostop do provizij:</p>
+                <input type="password" id="pinInput" placeholder="••••" maxlength="6" style="text-align: center; font-size: 1.5rem; letter-spacing: 8px; margin-bottom: 15px;">
+                <button class="btn-primary" style="width: 100%; padding: 12px;" onclick="preveriPin()">Prijava v sistem</button>
+            </div>
         </div>
 
-        <div class="forms-container">
-            <!-- Vnos Provizije -->
-            <div class="form-box" style="border-top: 3px solid var(--accent-color);">
-                <h3 style="margin-top:0; font-size:1rem;">➕ Nova provizija</h3>
-                <form id="formProvizija">
-                    <div class="form-group"><label>Datum:</label><input type="date" id="p_datum" required></div>
-                    <div class="form-group"><label>Opomba:</label><input type="text" id="p_opomba" placeholder="Št. računa, relacija..."></div>
-                    <div style="display: flex; gap: 8px;">
-                        <div class="form-group" style="flex: 1;"><label>Kg:</label><input type="number" id="p_kg" step="0.01" min="0" required oninput="izracunajProvizijoVsoto()"></div>
-                        <div class="form-group" style="flex: 1;"><label>€/kg:</label><input type="number" id="p_cena" step="0.01" min="0" required oninput="izracunajProvizijoVsoto()"></div>
-                    </div>
-                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">Skupaj: <strong id="p_izracun_skupaj">0.00 €</strong></div>
-                    <button type="submit">Dodaj provizijo</button>
-                </form>
+        <!-- POGLED 1: NADZORNA PLOŠČA (SEZNAM POSREDNIKOV) -->
+        <div id="pogled-seznam" class="hidden">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Nadzorna plošča · Provizije</h1>
+                    <p class="page-subtitle">Pregled posrednikov, odprtih postavk in izplačil na enem mestu.</p>
+                </div>
+                <div class="badge-status">Sistem aktiven v oblaku</div>
             </div>
 
-            <!-- Vnos Izplačila z izbiro provizij -->
-            <div class="form-box" style="border-top: 3px solid var(--success-color);">
-                <h3 style="margin-top:0; font-size:1rem;">💸 Izplačilo in zapiranje provizij</h3>
-                <form id="formIzplacilo">
-                    <div class="form-group"><label>Datum:</label><input type="date" id="i_datum" required></div>
-                    <div class="form-group"><label>Opomba izplačila:</label><input type="text" id="i_opomba" placeholder="Npr. št. naloga, gotovina..."></div>
-                    
-                    <div class="form-group" style="margin-bottom: 5px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <label style="margin:0;">Označi provizije:</label>
-                            <span onclick="izberiVseProvizije(true)" style="font-size: 0.75rem; color: var(--accent-color); cursor: pointer; font-weight: bold;">[ Izberi vse ]</span>
-                            <span onclick="izberiVseProvizije(false)" style="font-size: 0.75rem; color: var(--danger-color); cursor: pointer; font-weight: bold;">[ Počisti ]</span>
+            <!-- ZGORNJE STATISTIČNE KARTICE -->
+            <div class="stats-grid" id="globalne-statistike">
+                <div class="stat-card">
+                    <div class="stat-card-title">Skupaj posrednikov</div>
+                    <div class="stat-card-value" id="stat-skupaj-posrednikov">0</div>
+                    <div class="stat-card-sub">Aktivni poslovni partnerji</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-title">Skupaj dolgujemo za izplačilo</div>
+                    <div class="stat-card-value" id="stat-skupaj-dolg" style="color: var(--danger-color);">0.00 €</div>
+                    <div class="stat-card-sub">Neizplačane provizije</div>
+                </div>
+            </div>
+
+            <!-- DODAJANJE NOVEGA POSREDNIKA -->
+            <div class="add-broker-box">
+                <input type="text" id="novPosrednikIme" placeholder="Vpišite ime novega posrednika...">
+                <button class="btn-primary" onclick="dodajPosrednika()">+ Dodaj posrednika</button>
+            </div>
+
+            <!-- SEZNAM POSREDNIKOV (KARTICE) -->
+            <div class="content-card">
+                <div class="card-header-row">
+                    <h3 class="card-title">Seznam posrednikov</h3>
+                </div>
+                <div id="kartice-posrednikov">
+                    <!-- Dinamični vnos -->
+                </div>
+            </div>
+        </div>
+
+        <!-- POGLED 2: KONTO POSAMEZNEGA POSREDNIKA -->
+        <div id="pogled-detajli" class="hidden">
+            <div class="page-header">
+                <div>
+                    <button class="btn-secondary" onclick="odpriZacetniZaslon()" style="margin-bottom: 10px;">⬅ Nazaj na nadzorno ploščo</button>
+                    <h1 class="page-title" id="detajli-ime">Posrednik</h1>
+                    <p class="page-subtitle" id="detajli-stanje" style="font-weight: bold; color: var(--danger-color); font-size: 1.1rem;">Dolžni smo: 0.00 €</p>
+                </div>
+                <div>
+                    <button class="btn-danger-outline" onclick="izbrisiTrenutnegaPosrednika()">🗑️ Izbriši posrednika</button>
+                </div>
+            </div>
+
+            <!-- DVA OBRAZCA: PROVIZIJA IN IZPLAČILO -->
+            <div class="forms-grid">
+                <!-- Vnos Provizije -->
+                <div class="content-card" style="margin-bottom: 0; border-top: 4px solid var(--accent-color);">
+                    <h3 class="card-title" style="margin-bottom: 15px;">➕ Nova provizija (Posel)</h3>
+                    <form id="formProvizija">
+                        <div class="form-group"><label>Datum:</label><input type="date" id="p_datum" required></div>
+                        <div class="form-group"><label>Opomba (št. računa, relacija):</label><input type="text" id="p_opomba" placeholder="Npr. klavnica Maribor..."></div>
+                        <div style="display: flex; gap: 10px;">
+                            <div class="form-group" style="flex: 1;"><label>Količina (kg):</label><input type="number" id="p_kg" step="0.01" min="0" required oninput="izracunajProvizijoVsoto()"></div>
+                            <div class="form-group" style="flex: 1;"><label>Cena (€/kg):</label><input type="number" id="p_cena" step="0.01" min="0" required oninput="izracunajProvizijoVsoto()"></div>
                         </div>
-                        <div class="unpaid-list" id="neizplacaneProvizijeContainer" style="margin-top: 5px;">
-                            <div style="padding: 10px; color: #999; text-align: center;">Ni neizplačanih provizij</div>
-                        </div>
-                    </div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Izračun zneska: <strong id="p_izracun_skupaj" style="color: var(--primary-color);">0.00 €</strong></div>
+                        <button type="submit" class="btn-primary" style="width: 100%;">Zabeleži provizijo</button>
+                    </form>
+                </div>
 
-                    <div class="form-group">
-                        <label>Skupni znesek izplačila (€):</label>
-                        <input type="number" id="i_znesek" step="0.01" min="0" required style="font-weight: bold; background: #e8f8f5;">
-                    </div>
-                    <button type="submit" class="btn-payout">Zabeleži izplačilo</button>
-                </form>
+                <!-- Vnos Izplačila in Zapiranje postavk -->
+                <div class="content-card" style="margin-bottom: 0; border-top: 4px solid var(--success-color);">
+                    <h3 class="card-title" style="margin-bottom: 15px;">💸 Izplačilo in zapiranje postavk</h3>
+                    <form id="formIzplacilo">
+                        <div class="form-group"><label>Datum izplačila:</label><input type="date" id="i_datum" required></div>
+                        <div class="form-group"><label>Opomba izplačila (npr. št. naloga):</label><input type="text" id="i_opomba" placeholder="Npr. gotovina / TRR..."></div>
+                        
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <label style="margin:0;">Označi provizije za izplačilo:</label>
+                                <div>
+                                    <span onclick="izberiVseProvizije(true)" style="font-size: 0.75rem; color: var(--accent-color); cursor: pointer; font-weight: bold; margin-right: 8px;">[ Izberi vse ]</span>
+                                    <span onclick="izberiVseProvizije(false)" style="font-size: 0.75rem; color: var(--danger-color); cursor: pointer; font-weight: bold;">[ Počisti ]</span>
+                                </div>
+                            </div>
+                            <div class="unpaid-list" id="neizplacaneProvizijeContainer">
+                                <div style="padding: 10px; color: var(--text-muted); text-align: center;">Ni neizplačanih provizij</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Skupni znesek izplačila (€):</label>
+                            <input type="number" id="i_znesek" step="0.01" min="0" required style="font-weight: bold; background: #ecfdf5;">
+                        </div>
+                        <button type="submit" class="btn-success" style="width: 100%;">Zabeleži izplačilo</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ZGODOVINA -->
+            <div class="content-card" style="margin-top: 25px;">
+                <div class="card-header-row">
+                    <h3 class="card-title">Odprte postavke in zgodovina izplačil</h3>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Vrsta zapisa</th>
+                                <th>Opomba</th>
+                                <th class="text-right">Količina</th>
+                                <th class="text-right">Znesek</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detajli-zgodovina">
+                            <!-- Dinamična vsebina -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+    </main>
 
-        <h3 style="margin-bottom: 8px; font-size: 1.1rem;">Zgodovina konta (Neizplačani posli + Izplačila)</h3>
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Datum</th>
-                        <th>Vrsta</th>
-                        <th>Opomba</th>
-                        <th class="text-right">Količina</th>
-                        <th class="text-right">Znesek</th>
-                    </tr>
-                </thead>
-                <tbody id="detajli-zgodovina"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- FIREBASE IN SKRIPTA -->
+<!-- FIREBASE SKRIPTA IN LOGIKA -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -284,7 +444,7 @@
     window.dodajPosrednika = async function() {
         let vnos = document.getElementById('novPosrednikIme');
         let novoIme = vnos.value.trim();
-        if (novoIme === "") return alert("Vpiši ime posrednika.");
+        if (novoIme === "") return alert("Vpišite ime posrednika.");
         if (posredniki.some(p => p.ime === novoIme)) return alert("Ta posrednik že obstaja!");
 
         await addDoc(collection(db, "posredniki"), { ime: novoIme });
@@ -292,7 +452,7 @@
     };
 
     window.izbrisiTrenutnegaPosrednika = async function() {
-        if (!confirm(`Res želiš izbrisati posrednika ${izbranPosrednik}?`)) return;
+        if (!confirm(`Ali res želite izbrisati posrednika ${izbranPosrednik}?`)) return;
         let p = posredniki.find(x => x.ime === izbranPosrednik);
         if (p) await deleteDoc(doc(db, "posredniki", p.id));
         odpriZacetniZaslon();
@@ -310,10 +470,19 @@
     }
 
     function osveziZacetniZaslon() {
+        // Statistika na vrhu
+        document.getElementById('stat-skupaj-posrednikov').innerText = posredniki.length;
+        
+        let skupniDolgVseh = 0;
+        posredniki.forEach(p => {
+            skupniDolgVseh += izracunajStanje(p.ime).ostanek;
+        });
+        document.getElementById('stat-skupaj-dolg').innerText = skupniDolgVseh.toFixed(2) + ' €';
+
         const kontejner = document.getElementById('kartice-posrednikov');
         kontejner.innerHTML = '';
         if (posredniki.length === 0) {
-            kontejner.innerHTML = '<p style="color:#7f8c8d; text-align:center;">Ni dodanih posrednikov.</p>';
+            kontejner.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 20px;">Ni dodanih posrednikov.</p>';
             return;
         }
 
@@ -322,13 +491,14 @@
             let barvaStanja = stanje.ostanek > 0 ? 'var(--danger-color)' : 'var(--primary-color)';
             
             kontejner.innerHTML += `
-                <div class="card" onclick="odpriKonto('${p.ime}')">
+                <div class="broker-row-card" onclick="odpriKonto('${p.ime}')">
                     <div>
-                        <h3>${p.ime}</h3>
-                        <span style="font-size: 0.75rem; color: #7f8c8d;">Stanje za izplačilo</span>
+                        <h3 style="margin: 0 0 4px 0; font-size: 1.05rem; color: var(--primary-color);">${p.ime}</h3>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Kliknite za pregled konta in izplačil</span>
                     </div>
                     <div style="text-align: right;">
-                        <div class="amount" style="color: ${barvaStanja};">${stanje.ostanek.toFixed(2)} €</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Za izplačilo</div>
+                        <div style="font-size: 1.2rem; font-weight: bold; color: ${barvaStanja};">${stanje.ostanek.toFixed(2)} €</div>
                     </div>
                 </div>
             `;
@@ -364,7 +534,6 @@
         document.getElementById('p_izracun_skupaj').innerText = (kg * cena).toFixed(2) + ' €';
     };
 
-    // Zbere ID-je vseh provizij, ki so že bile vključene v katerokoli izplačilo
     function zberiIzplacaneProvizijeIds() {
         let izplacaneIds = new Set();
         transakcije.forEach(t => {
@@ -375,7 +544,6 @@
         return izplacaneIds;
     }
 
-    // Funkcija za hitro označevanje vseh/nobene provizije
     window.izberiVseProvizije = function(stanje) {
         let checkboxes = document.querySelectorAll('#neizplacaneProvizijeContainer input[type="checkbox"]');
         checkboxes.forEach(cb => cb.checked = stanje);
@@ -386,20 +554,18 @@
         if (!izbranPosrednik) return;
         let stanje = izracunajStanje(izbranPosrednik);
         document.getElementById('detajli-ime').innerText = izbranPosrednik;
-        let stanjeText = document.getElementById('detajli-stanje');
-        stanjeText.innerText = `Dolžni smo: ${stanje.ostanek.toFixed(2)} €`;
-        stanjeText.style.color = stanje.ostanek > 0 ? 'var(--danger-color)' : 'var(--success-color)';
+        document.getElementById('detajli-stanje').innerText = `Dolžni smo: ${stanje.ostanek.toFixed(2)} €`;
+        document.getElementById('detajli-stanje').style.color = stanje.ostanek > 0 ? 'var(--danger-color)' : 'var(--success-color)';
 
         let izplacaneIds = zberiIzplacaneProvizijeIds();
         let njegoveProvizije = transakcije.filter(t => t.posrednik === izbranPosrednik && t.tip === 'provizija');
         let neizplacane = njegoveProvizije.filter(t => !izplacaneIds.has(t.id));
 
-        // 1. Priprava seznama neizplačanih provizij v obrazcu za izplačilo
         const container = document.getElementById('neizplacaneProvizijeContainer');
         container.innerHTML = '';
 
         if (neizplacane.length === 0) {
-            container.innerHTML = `<div style="padding: 8px; color: #999; text-align: center; font-size: 0.85rem;">Vse provizije so že izplačane.</div>`;
+            container.innerHTML = `<div style="padding: 10px; color: var(--text-muted); text-align: center; font-size: 0.85rem;">Vse provizije so že izplačane.</div>`;
         } else {
             neizplacane.forEach(p => {
                 let datumF = new Date(p.datum).toLocaleDateString('sl-SI');
@@ -407,32 +573,26 @@
                 container.innerHTML += `
                     <div class="unpaid-item">
                         <input type="checkbox" value="${p.id}" data-znesek="${p.skupaj}" onchange="posodobiIzracunZneskaIzplacila()">
-                        <span><strong>${datumF}</strong> - ${p.skupaj.toFixed(2)} € <small>${opombaF}</small></span>
+                        <span><strong>${datumF}</strong> — ${p.skupaj.toFixed(2)} € <small style="color:var(--text-muted);">${opombaF}</small></span>
                     </div>
                 `;
             });
         }
 
-        // 2. Izris tabele zgodovine:
-        // Prikazujemo SAMO NEIZPLAČANE provizije + VSA izplačila! (Izplačane provizije se ne prikazujejo več posebej)
         const tabela = document.getElementById('detajli-zgodovina');
         tabela.innerHTML = '';
         
         let prikazneTransakcije = transakcije.filter(t => {
             if (t.posrednik !== izbranPosrednik) return false;
-            if (t.tip === 'izplacilo') return true; // Vsa izplačila ostanejo vidna
-            if (t.tip === 'provizija') {
-                // Pokaži samo tiste provizije, ki ŠE NISO izplačane
-                return !izplacaneIds.has(t.id);
-            }
+            if (t.tip === 'izplacilo') return true;
+            if (t.tip === 'provizija') return !izplacaneIds.has(t.id);
             return false;
         });
 
-        // Sortiramo od najnovejšega naprej
         prikazneTransakcije.sort((a, b) => b.ustvarjeno - a.ustvarjeno);
 
         if (prikazneTransakcije.length === 0) {
-            tabela.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#999;">Ni odprtih postavk ali izplačil.</td></tr>`;
+            tabela.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding: 20px;">Ni odprtih postavk ali izplačil.</td></tr>`;
         } else {
             prikazneTransakcije.forEach(t => {
                 let datumFormat = new Date(t.datum).toLocaleDateString('sl-SI');
@@ -442,9 +602,9 @@
                     tabela.innerHTML += `
                         <tr>
                             <td>${datumFormat}</td>
-                            <td><strong style="color:var(--accent-color)">Posel</strong></td>
+                            <td><strong style="color:var(--accent-color)">Posel (Provizija)</strong></td>
                             <td class="opomba-text">${opomba}</td>
-                            <td class="text-right">${t.kg} kg<br><small>(${t.cenaNaKg} €)</small></td>
+                            <td class="text-right">${t.kg} kg<br><small style="color:var(--text-muted)">(${t.cenaNaKg} €/kg)</small></td>
                             <td class="text-right" style="font-weight:bold;">+ ${t.skupaj.toFixed(2)} €</td>
                         </tr>`;
                 } else {
@@ -452,14 +612,14 @@
                     tabela.innerHTML += `
                         <tr class="clickable-row" onclick="togglePodrobnosti('${t.id}')">
                             <td>${datumFormat}</td>
-                            <td><strong style="color:var(--danger-color)">Izplačilo</strong> 🔍<br><small style="color:#666">(${stProvizij} zaprtih poslov)</small></td>
+                            <td><strong style="color:var(--success-color)">Izplačilo 🔍</strong><br><small style="color:var(--text-muted)">(${stProvizij} zaprtih poslov)</small></td>
                             <td class="opomba-text">${opomba}</td>
                             <td class="text-right">/</td>
                             <td class="text-right" style="font-weight:bold; color:var(--danger-color);">- ${t.skupaj.toFixed(2)} €</td>
                         </tr>
                         <tr id="podrobnosti-${t.id}" class="details-row">
                             <td colspan="5">
-                                <strong style="font-size:0.85rem; color:#2c3e50;">Zajete provizije v tem izplačilu:</strong>
+                                <strong style="font-size:0.85rem; color:var(--primary-color);">Zajete provizije v tem izplačilu:</strong>
                                 ${generirajPodrobneProvizijeHtml(t.provizijaIds)}
                             </td>
                         </tr>`;
@@ -488,7 +648,7 @@
 
     function generirajPodrobneProvizijeHtml(ids) {
         if (!ids || ids.length === 0) {
-            return '<div style="font-size:0.85rem; color:#888; font-style:italic; margin-top:4px;">Nobena specifična provizija ni bila označena.</div>';
+            return '<div style="font-size:0.85rem; color:var(--text-muted); font-style:italic; margin-top:4px;">Nobena specifična provizija ni bila označena.</div>';
         }
         let html = `<table class="sub-table"><thead><tr><th>Datum</th><th>Opomba</th><th class="text-right">Količina</th><th class="text-right">Znesek</th></tr></thead><tbody>`;
         
@@ -525,12 +685,12 @@
         
         let izbraneProvizijeIds = [];
         let checkboxes = document.querySelectorAll('#neizplacaneProvizijeContainer input[type="checkbox"]:checked');
-        checkboxes.forEach(cb => {
+        checkboxes.exports = checkboxes.forEach(cb => {
             izbraneProvizijeIds.push(cb.value);
         });
 
         if (izbraneProvizijeIds.length === 0) {
-            if (!confirm("Opozorilo: Nisi označil nobene provizije za izplačilo. Ali kljub temu želiš zabeležiti to izplačilo?")) return;
+            if (!confirm("Opozorilo: Niste označili nobene provizije za izplačilo. Ali kljub temu želite zabeležiti to izplačilo?")) return;
         }
 
         await addDoc(collection(db, "transakcije"), {
